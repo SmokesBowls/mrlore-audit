@@ -60,16 +60,57 @@ None detected.
 No sources linked. Page created to establish registry anchor.
 ```
 
-**The entire evidentiary basis for a 5-step identity-transformation
-claim is a page that states, in its own words, that it has no sources.**
-Every `entity_ref` in the chain is `null` — the five names aren't even
-cross-linked to each other's registry entries, just five bare strings
-in a list. `needs_review: false` / `reviewed_by: human` asserts human
-sign-off over a claim resting on admitted zero evidence.
+**Correction to how this finding was first stated (author feedback,
+recorded here rather than silently edited away): two separate errors in
+the original framing.**
 
-Cross-checked against the only place real per-mention citations exist
-(`raw/artifacts`, 46,717 records) to see whether the corpus itself at
-least supports the chain even if the registry doesn't cite it properly:
+**First** — `needs_review: false` / `reviewed_by: human` next to a
+source page that says "No sources linked" does not prove the review
+never happened. It proves the *surviving record* cannot demonstrate or
+be audited against that review. Absent independent evidence that no
+human ever looked at this, calling the authority claim "fabricated"
+overstates what was actually shown. The supportable finding is:
+
+```text
+The registry asserts human review, but preserves no review receipt,
+source, decision record, or evidence trail sufficient to audit that
+assertion.
+
+Result: HUMAN-REVIEW CLAIM UNAUDITABLE — not proven false.
+```
+
+**Second, and more important** — treating the absence of current
+textual evidence as evidence *against* the five-name chain was wrong in
+a deeper way. This character is explicitly designed to persist across
+roughly 6,000 in-story years, presenting under different names to
+different eras and different observers, by intent — not as a data gap
+to close. A given chapter, including one that's been rewritten many
+times, has no obligation to re-expose the connection between "Geralt"
+and "Mr GPT" for that connection to still be true at the author/canon
+level. The people in that scene may not know it either. So the right
+model is six distinguishable things, not one collapsed "is there
+evidence" question:
+
+```text
+story-facing identity     — who this being appears to be within one
+                             era/scene, to the characters around them
+persistent identity       — the one underlying being across all eras,
+                             an author/canon-level fact
+current textual evidence  — what today's version of a chapter says
+historical textual evidence — what an earlier draft/version said,
+                             possibly since rewritten away
+human/author canon        — what the author has actually established,
+                             independent of what any single draft states
+derived inference          — what a tool concluded by pattern-matching,
+                             not by citation
+```
+
+G1 governs exactly one of those six layers: current textual evidence.
+It has no way to confirm or deny persistent identity or author canon,
+and it must not be read as having done so just because a particular
+rewrite doesn't happen to expose the connection. The cross-check against
+`raw/artifacts` below is reported as a fact about that one layer only,
+not as an argument against the chain itself:
 
 ```text
 "Ragnarok"                   -> 96 records, all in book_05_the_nameless_one
@@ -77,25 +118,34 @@ least supports the chain even if the registry doesn't cite it properly:
 "Man Who Flew Into The Sun"   -> 0 records anywhere in the corpus
 ```
 
-"Ragnarok" and "The Nameless One" are at least real, heavily-attested
-terms — but concentrated entirely in one book/arc (`book_05`), with no
-citation anywhere connecting them to "Geralt" as the same entity (that
-would require reading the actual chapter 24/25 prose to check, which
-this report did not attempt — the point here is narrower: *the registry
-itself does not do this work either*, despite claiming
-`authority: human_review`). "Man Who Flew Into The Sun" — one of five
-links in the chain — does not occur as extractable text anywhere in the
-139-chapter artifact batch at all.
+These numbers describe the current-textual-evidence layer only. Zero
+records for "Man Who Flew Into The Sun" is unsurprising and not
+counter-evidence — hundreds of chapters have been rewritten, some
+identity-chain links may only ever have existed in earlier drafts, and
+some may be author canon that has never yet been re-exposed in current
+prose at all. None of that bears on whether the persistent identity is
+real.
 
-**This is worse than the Enlil case, not the same shape.** Enlil was
-three real, textually well-attested entities wrongly pooled under one
-name. This is a claimed five-step identity transformation for the
-book's central character (1,585 mentions, 37 chapters) resting on a
-page that admits zero sources, a chain with no internal cross-references,
-and a terminal link that may not exist in the prose at all.
+**Revised finding:**
 
-**Verdict: does not survive evidence-checking. Fails at "is there any
-evidence," not merely "was the evidence checked before merging."**
+```text
+The five-name chain is not disproven.
+
+Its surviving registry representation lacks sufficient provenance to
+distinguish author-established canon from extraction/inference — the
+record gives no way to tell which of the six layers above any given
+part of the chain actually rests on.
+```
+
+The architectural problem this exposes is provenance and layering, not
+the chain itself. `entities.yaml` currently flattens "author canon,"
+"derived inference," and "textual evidence" into one undifferentiated
+`incarnation_chain` block with a single `authority` field — exactly the
+structure that makes it impossible to tell, from the record alone,
+whether any given link is something the author actually established or
+something a tool guessed. Fixing that means the registry (or whatever
+replaces it) needs to keep those layers distinguishable, not that the
+chain needs to be re-proven or dropped.
 
 ## Test B: `continuity_audit.py`'s contradiction/authority claims
 
@@ -174,8 +224,13 @@ audit with what's now actually known:
 ```text
 1. Alias/canonical-name resolution
    was: untested, not proven either way
-   now: tested, FAILS -- the specific example the door design cited as
-        proof of this capability rests on zero cited evidence
+   now: tested. Not disproven -- the chain may well be real
+        author-established canon. What's actually broken is narrower:
+        the registry record can't demonstrate whether any given link
+        is author canon, derived inference, or draft-specific textual
+        evidence, and its human-review claim can't be audited from
+        what survives. That's a provenance/layering defect, not a
+        false-identity defect.
 
 2. Contradiction/authority resolution
    was: genuinely open, likely the real Ollama boundary
@@ -189,24 +244,65 @@ audit with what's now actually known:
         entities.yaml's incarnation chains need to be.
 ```
 
-Neither finding is about G1's scope. Both are about whether the
-specific claims UncleLore already made — the ones the door design
-leaned on to argue MrLore has a working identity/authority layer — are
-actually true. They are not, in both cases checked. This doesn't mean
-UncleLore is worthless (`raw/artifacts`'s 46,717 per-mention citations
-remain real and, per the adapter proof set, ~97% recoverable); it means
-the *identity and contradiction conclusions layered on top of that raw
-data* were never verified and, spot-checked twice now, don't hold up.
+Neither finding is about G1's scope, and the two are not the same shape
+of problem. Test B's resolution is actively *contradicted* by cited
+prose (the Aeon Keepers create the Nephoretti; the text says so
+directly) — that's real evidence against a specific claim, not merely
+absent evidence. Test A has no such contradiction; it has no
+demonstrable evidence either way, which — for a persistent identity the
+author may have established independently of any single chapter's
+prose — is not the same thing as being wrong. What both share is a
+provenance failure: neither record preserves enough information to
+tell a reader (or Dragon) which of author canon, derived inference, or
+textual citation it's actually resting on.
 
 ## Recommendation
 
-Before any Dragon-facing door surfaces an identity or contradiction
-answer from UncleLore's existing registry/continuity output, it should
-be re-derived through G1 rather than read from `entities.yaml`/
-`wiki/continuity/` directly — exactly the "MrLore door reads G1
-evidence, not raw UncleLore claims" shift from the earlier discussion,
-now with two concrete, named examples of why the raw claims can't be
-trusted as-is rather than a general worry.
+G1 governs the textual-evidence layer and should stay the authority for
+exactly that layer — what a specific passage in a specific version of a
+chapter actually says, verifiable and reproducible. It has no business
+being treated as the authority over author-established persistent
+identity, which is a separate, higher layer that current prose is not
+obligated to re-derive on demand. The right shape going forward is two
+distinguishable layers, not one collapsed into the other:
+
+```text
+Persistent identity registry:
+  "These otherwise separate story-facing identities are canonically
+   the same being." (author/canon authority, may exceed what any
+   current chapter's text alone can show)
+
+G1 / textual-evidence layer:
+  "Here is what this particular source passage actually establishes."
+  (reproducible, citation-bound, silent about anything a passage
+   doesn't say)
+
+Dragon:
+  can ask either layer, depending on which question it's actually
+  asking — "is Geralt canonically the same being as Mr GPT" is a
+  persistent-identity question; "does this chapter say so" is a G1
+  question. They are different questions with different authorities,
+  not one question G1 can settle by itself.
+```
+
+Concretely: `entities.yaml`'s `incarnation_chain` should keep existing
+as an author/canon-level assertion — it should not be deleted, flattened
+into "unproven," or forced to wait for G1 evidence before being trusted.
+What it should stop doing is presenting itself as if it were already
+audited the way a G1-backed claim is (the `authority: human_review` /
+`needs_review: false` fields), when what actually survives is a record
+with no way to show that audit happened. Whatever eventually replaces
+or wraps `entities.yaml` needs to keep persistent-identity assertions
+and textual-evidence citations as visibly separate fields, so a reader
+can tell which authority any given part of an answer is actually
+resting on.
+
+`continuity_audit.py`'s output is a different case and the earlier
+recommendation there stands unchanged: its one checkable decision
+contradicts cited prose, and none of its 86 decisions can currently be
+audited at all (the per-conflict evidence files don't exist). That
+output should not be trusted as-is regardless of which layer it's
+claiming to speak from.
 
 Not run in this pass, deliberately: re-checking all 111 registry
 entities' incarnation chains, or re-running `continuity_audit.py`
